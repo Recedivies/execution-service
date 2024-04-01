@@ -1,12 +1,6 @@
 # Build stage
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
-COPY . .
-RUN go build -o main main.go
-
-# Run stage
-FROM alpine:3.16
-WORKDIR /app
 
 # set env variables
 ARG EMAIL_SENDER_NAME
@@ -22,6 +16,13 @@ ENV EMAIL_SENDER_PASSWORD ${EMAIL_SENDER_PASSWORD}
 ENV DB_SOURCE ${DB_SOURCE}
 ENV ENVIRONMENT ${ENVIRONMENT}
 ENV RABBITMQ_SERVER_URL ${RABBITMQ_SERVER_URL}
+
+COPY . .
+RUN go build -o main main.go
+
+# Run stage
+FROM alpine:3.16
+WORKDIR /app
 
 COPY --from=builder /app/main .
 COPY .env start.sh ./
