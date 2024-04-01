@@ -38,7 +38,7 @@ Deploy Prod:
     - apk update && apk add openssh-client
   script:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP
-    - sudo -s
+    - /usr/bin/sudo -s
     - sudo apt-get install docker.io
     - "docker container rm -f $CONTAINER_NAME || true &&
       docker image rm -f $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG || true &&
