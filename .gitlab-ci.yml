@@ -32,14 +32,13 @@ Publish Docker Build:
 
 Deploy Prod:
   stage: deploy
-  image: alpine:latest
+  image: ubuntu:latest
   before_script:
     - chmod 400 $SSH_KEY
     - apk update && apk add openssh-client
   script:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP
-    - sudo apt update
-    - /usr/bin/sudo -s
+    - sudo -s
     - sudo apt-get install docker.io
     - "docker container rm -f $CONTAINER_NAME || true &&
       docker image rm -f $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG || true &&
