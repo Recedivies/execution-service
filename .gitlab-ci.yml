@@ -6,8 +6,6 @@ stages:
 Test Coverage:
   stage: test
   image: golang:1.21-alpine
-  dependencies:
-    - Build
   script:
     - go test ./...
 
@@ -18,7 +16,7 @@ Publish Docker Build:
     - name: docker:20.10.16-dind
       alias: docker
   dependencies:
-    - Build
+    - Test Coverage
   variables:
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"

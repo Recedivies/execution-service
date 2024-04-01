@@ -91,7 +91,6 @@ func (processor *RabbitMQTaskProcessor) ListenAndServe() error {
 				if taskExecutionHistory == (model.TaskExecutionHistory{}) || job == (model.Job{}) {
 					log.Info().Msg("NAcking")
 					msg.Nack(false, nack)
-					fmt.Println("WOY ANJ")
 					// continue
 				}
 
@@ -110,7 +109,6 @@ func (processor *RabbitMQTaskProcessor) ListenAndServe() error {
 						log.Error().Err(err)
 					}
 				}
-				fmt.Println("WOY TAI")
 				processor.DB.Save(&taskExecutionHistory)
 				msg.Nack(false, nack)
 			} else {
