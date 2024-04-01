@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.19.4-alpine3.16 AS builder
+FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o main main.go
@@ -7,10 +7,25 @@ RUN go build -o main main.go
 # Run stage
 FROM alpine:3.16
 WORKDIR /app
-COPY --from=builder /app/main .
-COPY app.env start.sh wait-for.sh ./
-COPY db/migration ./db/migration
 
-EXPOSE 9090
+# set env variables
+ARG EMAIL_SENDER_NAME
+ARG EMAIL_SENDER_ADDRESS
+ARG EMAIL_SENDER_PASSWORD
+ARG DB_SOURCE
+ARG ENVIRONMENT
+ARG RABBITMQ_SERVER_URL
+
+ENV EMAIL_SENDER_NAME ${EMAIL_SENDER_NAME}
+ENV EMAIL_SENDER_ADDRESS ${EMAIL_SENDER_ADDRESS}
+ENV EMAIL_SENDER_PASSWORD ${EMAIL_SENDER_PASSWORD}
+ENV DB_SOURCE ${DB_SOURCE}
+ENV ENVIRONMENT ${ENVIRONMENT}
+ENV RABBITMQ_SERVER_URL ${RABBITMQ_SERVER_URL}
+
+COPY --from=builder /app/main .
+COPY .env start.sh ./
+
+EXPOSE 8080
 CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]

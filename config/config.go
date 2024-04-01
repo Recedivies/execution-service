@@ -10,9 +10,12 @@ import (
 )
 
 type Config struct {
-	Environment       string `mapstructure:"ENVIRONMENT"`
-	DBSource          string `mapstructure:"DB_SOURCE"`
-	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	Environment         string `mapstructure:"ENVIRONMENT"`
+	DBSource            string `mapstructure:"DB_SOURCE"`
+	RabbitMQServerURL   string `mapstructure:"RABBITMQ_SERVER_URL"`
+	EmailSenderName     string `mapstructure:"EMAIL_SENDER_NAME"`
+	EmailSenderAddress  string `mapstructure:"EMAIL_SENDER_ADDRESS"`
+	EmailSenderPassword string `mapstructure:"EMAIL_SENDER_PASSWORD"`
 }
 
 func LoadConfig(path string) Config {
