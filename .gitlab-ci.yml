@@ -35,7 +35,7 @@ Deploy Prod:
   image: ubuntu:latest
   before_script:
     - chmod 400 $SSH_KEY
-    - apk update && apk add openssh-client
+    - sudo apt update && sudo install openssh-client
   script:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP
     - sudo -s
