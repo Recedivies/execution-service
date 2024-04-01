@@ -32,10 +32,10 @@ Publish Docker Build:
 
 Deploy Prod:
   stage: deploy
-  image: ubuntu:latest
+  image: alpine:latest
   before_script:
     - chmod 400 $SSH_KEY
-    - sudo apt update && sudo install openssh-client
+    - apk update && apk add openssh-client
   script:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP
     - "docker container rm -f $CONTAINER_NAME || true &&
