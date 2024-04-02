@@ -37,8 +37,8 @@ Deploy Prod:
     - chmod 400 $SSH_KEY
     - apk update && apk add openssh-client
   script:
-    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP
-    - "docker container rm -f $CONTAINER_NAME || true &&
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP "
+      docker container rm -f $CONTAINER_NAME || true &&
       docker image rm -f $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG || true &&
       docker run --name $CONTAINER_NAME -d -p 80:8080 --restart unless-stopped $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG"
   only:
