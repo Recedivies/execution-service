@@ -48,6 +48,7 @@ Deploy Prod:
       echo "EMAIL_SENDER_ADDRESS=$EMAIL_SENDER_ADDRESS" >> $ENV_FILE;
       echo "EMAIL_SENDER_PASSWORD=$EMAIL_SENDER_PASSWORD" >> $ENV_FILE;
       cat $ENV_FILE;
+      ls -al;
       docker container rm -f $CONTAINER_NAME || true &&
       docker image rm -f $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG || true &&
       docker run --name $CONTAINER_NAME -d -p 80:8080 --restart unless-stopped $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG"
