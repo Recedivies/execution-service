@@ -32,7 +32,8 @@ RUN echo "EMAIL_SENDER_NAME=${EMAIL_SENDER_NAME}" > .env && \
     echo "EMAIL_SENDER_PASSWORD=${EMAIL_SENDER_PASSWORD}" >> .env && \
     echo "DB_SOURCE=${DB_SOURCE}" >> .env && \
     echo "ENVIRONMENT=${ENVIRONMENT}" >> .env && \
-    echo "RABBITMQ_SERVER_URL=${RABBITMQ_SERVER_URL}" >> .env
+    echo "RABBITMQ_SERVER_URL=${RABBITMQ_SERVER_URL}" >> .env && \
+    cat .env
 
 COPY start.sh ./
 
