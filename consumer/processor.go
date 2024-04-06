@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"gitlab.cs.ui.ac.id/ahmadhi.prananta/execution_service/config"
@@ -16,8 +17,9 @@ import (
 )
 
 type TaskProcessor interface {
-	ListenAndServe() error
-	SendCallback(model.Job) error
+	ListenTaskRetryAndServe() error
+	ListenTaskAndServe() error
+	SendCallback(job model.Job, taskExecutionHistory model.TaskExecutionHistory, err error) error
 	Shuwdown(ctx context.Context) error
 }
 
@@ -39,21 +41,38 @@ func NewRabbitMQTaskProcessor(mail mail.EmailSender, DB *gorm.DB, rmq *config.Ra
 	}
 }
 
-func (s *RabbitMQTaskProcessor) SendCallback(job model.Job) error {
-	callbackURL := "https://email.requestcatcher.com/test"
+func (s *RabbitMQTaskProcessor) SendCallback(job model.Job, taskExecutionHistory model.TaskExecutionHistory, err error) error {
+	executionTime := time.Now()
+	if taskExecutionHistory != (model.TaskExecutionHistory{}) {
+		executionTime = taskExecutionHistory.ExecutionTime
+	}
+
+	status := "success"
+	message := "task processed successfully"
+	if err != nil {
+		status = "failed"
+		message = "task processing failed"
+	}
 
 	payload := map[string]interface{}{
-		"status":  "success",
-		"message": "Task processed successfully",
+		"status":         status,
+		"message":        message,
+		"execution_time": executionTime.Format(time.RFC3339), // Convert time to string format
+	}
+
+	if err != nil {
+		payload["error"] = err.Error()
 	}
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		log.Error().Err(err).Msg("Error sending callback")
+		log.Error().Err(err).Msg("json.Marshal")
 		return err
 	}
 
-	_, err = http.Post(callbackURL, "application/json", bytes.NewBuffer(jsonPayload))
+	log.Info().Str("payload", string(jsonPayload)).Str("URL", job.CallbackUrl).Msg("Sending to callback URL")
+
+	_, err = http.Post(job.CallbackUrl+job.Id, "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		log.Error().Err(err).Msg("Error sending callback")
 		return err
@@ -66,7 +85,8 @@ func (s *RabbitMQTaskProcessor) SendCallback(job model.Job) error {
 func (s *RabbitMQTaskProcessor) Shuwdown(ctx context.Context) error {
 	log.Info().Msg("Shutting down server")
 
-	s.rmq.Channel.Cancel(queueName, false)
+	s.rmq.Channel.Cancel(queueTask, false)
+	s.rmq.Channel.Cancel(queueTaskRetry, false)
 
 	for {
 		select {

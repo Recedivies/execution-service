@@ -1,7 +1,6 @@
 package mail
 
 import (
-	"errors"
 	"fmt"
 	"net/smtp"
 
@@ -46,7 +45,6 @@ func (sender *GmailSender) SendEmail(
 	bcc []string,
 	attachFiles []string,
 ) error {
-	return errors.New("HELLO TEST ERROR")
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("%s <%s>", sender.name, sender.fromEmailAddress)
 	e.To = to

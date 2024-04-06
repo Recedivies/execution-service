@@ -18,7 +18,7 @@ import (
 
 func main() {
 	configuration := config.LoadConfig(".")
-	db := config.NewPostgres(configuration.DBSource)
+	db := config.NewPostgres(configuration.DBSource, configuration.Environment)
 	rmq := config.NewRabbitMQ(configuration.RabbitMQServerURL)
 	msgBroker, err := producer.NewTask(rmq.Channel)
 	exception.FatalIfNeeded(err, "rabbitmq.NewTask")
@@ -63,9 +63,17 @@ func runTaskProcessor(configuration config.Config, DB *gorm.DB, rmq *config.Rabb
 	}()
 
 	go func() {
-		log.Info().Msg("Listening and serving")
+		log.Info().Msg("Listening task and serving")
 
-		if err := taskProcessor.ListenAndServe(); err != nil {
+		if err := taskProcessor.ListenTaskAndServe(); err != nil {
+			errC <- err
+		}
+	}()
+
+	go func() {
+		log.Info().Msg("Listening task retry and serving")
+
+		if err := taskProcessor.ListenTaskRetryAndServe(); err != nil {
 			errC <- err
 		}
 	}()
